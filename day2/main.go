@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/fxnn/adventofcode2024/util"
 	"os"
@@ -48,7 +49,32 @@ func firstUnsafeIndex(levels []int) int {
 	return -1
 }
 
+func isSafeWithIndexRemoved(levels []int, index int) bool {
+	dampenedLevels, err := util.RemoveElement(levels, index)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error in RemoveElement: %s\n", err)
+		os.Exit(1)
+	}
+	return firstUnsafeIndex(dampenedLevels) == -1
+}
+
+func isSafeWithDampening(levels []int, unsafeIndex int) bool {
+	// HINT (0, 1): those we use for determining the gradient
+	// HINT (i-1, i): these are the ones we compare for their difference and gradient
+	dampeningIndices := []int{0, 1, unsafeIndex - 1, unsafeIndex}
+	for _, dampeningIndex := range dampeningIndices {
+		if isSafeWithIndexRemoved(levels, dampeningIndex) {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
+	var bruteforceEnabled bool
+	flag.BoolVar(&bruteforceEnabled, "bruteforce", false, "enable bruteforcing the solution")
+	flag.Parse()
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	safeReports := 0
@@ -63,17 +89,17 @@ func main() {
 			safeReports++
 			dampenedSafeReports++
 			fmt.Printf("  safe\n")
-		} else {
-			var err error
-			levels, err = util.RemoveElement(levels, index)
-			fmt.Printf("  dampened %v\n", levels)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error in RemoveElement: %s\n", err)
-				os.Exit(1)
-			}
-			if firstUnsafeIndex(levels) == -1 {
-				dampenedSafeReports++
-				fmt.Printf("  safe with dampener\n")
+		} else if isSafeWithDampening(levels, index) {
+			dampenedSafeReports++
+			fmt.Printf("  safe with dampener at index %d\n", index)
+		} else if bruteforceEnabled {
+			for bruteforceIndex := range levels {
+				if isSafeWithIndexRemoved(levels, bruteforceIndex) {
+					dampenedSafeReports++
+					fmt.Printf("  BRUTEFORCED: safe with dampener at index %d (we tried at %d, %d)\n",
+						bruteforceIndex, index-1, index)
+					break
+				}
 			}
 		}
 	}

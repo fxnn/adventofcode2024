@@ -1,6 +1,21 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
+// Atoi converts string to integer, and exist immediately upon error
+func Atoi(s string) int {
+	if i, err := strconv.Atoi(s); err != nil {
+		fmt.Fprintf(os.Stderr, "Error in Atoi(%s): %s\n", s, err)
+		os.Exit(1)
+		return 0
+	} else {
+		return i
+	}
+}
 
 // Abs calculates the absolute value of an integer
 func Abs(x int) int {

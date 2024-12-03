@@ -9,17 +9,26 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
 
     - name: Update Leaderboard in README.md
       run: ./leaderboard-replace.sh
 
+    - name: Output README.md changes for debugging
+      run: git diff README.md
+
     - name: Commit and Push changes
       run: |
-        git config --global user.name "${GITHUB_ACTOR}"
-        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-        git commit -am "README.md: update leaderboard" \
-          && git push \
-          || true
+        set -e
+        if git diff --no-patch --exit-code README.md; then
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git commit -am "README.md: update leaderboard" \
+          git push
+        else
+          echo "README.md unchanged, not committing"
+        fi
 

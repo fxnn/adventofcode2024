@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/fxnn/adventofcode2024/util"
 	"os"
 	"regexp"
 	"sort"
@@ -16,13 +17,6 @@ func convertAndAppend(list []int, strVal string) []int {
 		os.Exit(1)
 	}
 	return append(list, intVal)
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
 
 func count(list []int, val int) int {
@@ -58,7 +52,7 @@ func main() {
 	sort.Ints(list2)
 	distanceSum := 0
 	for i := 0; i < len(list1); i++ {
-		distanceSum += abs(list1[i] - list2[i])
+		distanceSum += util.Abs(list1[i] - list2[i])
 	}
 
 	fmt.Printf("sum of distances is %d\n", distanceSum)

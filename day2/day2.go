@@ -23,24 +23,24 @@ func levels(report string) []int {
 	return levels
 }
 
-func isSafe(levels []int, index int) bool {
+func isUnsafe(levels []int, index int) bool {
 	firstDiff := levels[0] - levels[1]
 	diff := levels[index-1] - levels[index]
 	if diff == 0 || util.Abs(diff) > 3 {
 		fmt.Printf("  unsafe diff (%d) at index %d\n", diff, index)
-		return false
+		return true
 	}
 	if util.Sign(diff) != util.Sign(firstDiff) {
 		fmt.Printf("  unsafe sign (%d,%d) at index %d\n", util.Sign(diff), util.Sign(firstDiff), index)
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
 func firstUnsafeIndex(levels []int) int {
 	for i := range levels {
 		if i > 0 {
-			if !isSafe(levels, i) {
+			if isUnsafe(levels, i) {
 				return i
 			}
 		}

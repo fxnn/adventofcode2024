@@ -15,17 +15,24 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Update Leaderboard in README.md
+      env:
+        AOC_SESSION_COOKIE: ${{ secrets.AOC_SESSION_COOKIE }}
+        AOC_LEADERBOARD_ID: ${{ secrets.AOC_LEADERBOARD_ID }}
       run: ./leaderboard-replace.sh
 
     - name: Output README.md changes for debugging
       run: git diff README.md
 
     - name: Commit and Push changes
+      env:
+        GIT_USER_NAME: "${{ github.actor }}"
+        # see https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
+        GIT_USER_EMAIL: "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
       run: |
         set -e
         if ! git diff --no-patch --exit-code README.md; then
-          git config --global user.name "${GITHUB_ACTOR}"
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GIT_USER_NAME}"
+          git config --global user.email "${GIT_USER_EMAIL}"
           git commit -am "README.md: update leaderboard" \
           git push
         else

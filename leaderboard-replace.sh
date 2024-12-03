@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-export leaderboard="$(./leaderboard-fetch.sh)"
+leaderboard="$(./leaderboard-fetch.sh)"
 
-awk \
+awk -v leaderboard="${leaderboard}" \
   '
   BEGIN {
     isLeaderboard="false" ;
@@ -22,7 +22,7 @@ awk \
   }
   isLeaderboard=="true" && isLeaderboardPrinted=="false" {
     print "" ;
-    print "> " ENVIRON["leaderboard"] ;
+    print "> " leaderboard ;
     print "" ;
     isLeaderboardPrinted="true" ;
     next ;

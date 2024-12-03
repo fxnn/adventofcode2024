@@ -23,7 +23,7 @@ jobs:
     - name: Commit and Push changes
       run: |
         set -e
-        if git diff --no-patch --exit-code README.md; then
+        if ! git diff --no-patch --exit-code README.md; then
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git commit -am "README.md: update leaderboard" \

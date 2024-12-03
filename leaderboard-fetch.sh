@@ -5,8 +5,8 @@ set -o pipefail
 aoc_year=2024
 export aoc_username="fxnn"
 
-[ -z "${AOC_SESSION_COOKIE}" ] && { echo "ERROR: missing AOC_SESSION_COOKIE"; exit 1; }
-[ -z "${AOC_LEADERBOARD_ID}" ] && { echo "ERROR: missing AOC_LEADERBOARD_ID"; exit 1; }
+[ -z "${AOC_SESSION_COOKIE}" ] && { echo "ERROR: missing AOC_SESSION_COOKIE" >&2; exit 1; }
+[ -z "${AOC_LEADERBOARD_ID}" ] && { echo "ERROR: missing AOC_LEADERBOARD_ID" >&2; exit 1; }
 
 curl \
   -sS \

@@ -33,7 +33,7 @@ jobs:
         if ! git diff --no-patch --exit-code README.md; then
           git config --global user.name "${GIT_USER_NAME}"
           git config --global user.email "${GIT_USER_EMAIL}"
-          git commit -am "README.md: update leaderboard" \
+          git commit -am "README.md: update leaderboard"
           git push
         else
           echo "README.md unchanged, not committing"

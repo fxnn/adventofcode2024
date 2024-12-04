@@ -28,14 +28,23 @@ jobs:
         GIT_USER_NAME: "${{ github.actor }}"
         # see https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
         GIT_USER_EMAIL: "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+        RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       run: |
         set -e
-        if ! git diff --no-patch --exit-code README.md; then
-          git config --global user.name "${GIT_USER_NAME}"
-          git config --global user.email "${GIT_USER_EMAIL}"
-          git commit -am "README.md: update leaderboard"
-          git push
-        else
+
+        if git diff --no-patch --exit-code README.md; then
           echo "README.md unchanged, not committing"
+          exit 0
         fi
+
+        {
+          echo "README.md: update leaderboard"
+          echo
+          echo "commit generated automatically from"
+          echo "${RUN_URL}"
+        } >/tmp/commit-message.txt
+        git config --global user.name "${GIT_USER_NAME}"
+        git config --global user.email "${GIT_USER_EMAIL}"
+        git commit -a -F /tmp/commit-message.txt
+        git push
 

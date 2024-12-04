@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const NEEDLE = "XMAS"
+const NEEDLE = "MAS"
 
 type point struct {
 	y int
@@ -35,16 +35,16 @@ func generateMatchPoints(at point, dy, dx int) []point {
 	return result
 }
 
+func transpose(p point, dy, dx int) point {
+	return point{y: p.y + dy, x: p.x + dx}
+}
+
 func matchPointGenerators() []func(point) []point {
 	return []func(point) []point{
-		func(p point) []point { return generateMatchPoints(p, -1, 0) },
-		func(p point) []point { return generateMatchPoints(p, -1, -1) },
-		func(p point) []point { return generateMatchPoints(p, 0, -1) },
-		func(p point) []point { return generateMatchPoints(p, 1, -1) },
-		func(p point) []point { return generateMatchPoints(p, 1, 0) },
-		func(p point) []point { return generateMatchPoints(p, 1, 1) },
-		func(p point) []point { return generateMatchPoints(p, 0, 1) },
-		func(p point) []point { return generateMatchPoints(p, -1, 1) },
+		func(p point) []point { return generateMatchPoints(transpose(p, -1, -1), 1, 1) },
+		func(p point) []point { return generateMatchPoints(transpose(p, 1, 1), -1, -1) },
+		func(p point) []point { return generateMatchPoints(transpose(p, -1, 1), 1, -1) },
+		func(p point) []point { return generateMatchPoints(transpose(p, 1, -1), -1, 1) },
 	}
 }
 
@@ -64,13 +64,21 @@ func countMatchesFrom(source point, lines []string, matches [][]byte) int {
 		if !isAMatch(matchPoints, lines) {
 			continue
 		}
-
+		matchCount++
+	}
+	if matchCount != 2 {
+		return 0
+	}
+	for _, generator := range matchPointGenerators() {
+		matchPoints := generator(source)
+		if !isAMatch(matchPoints, lines) {
+			continue
+		}
 		for i, p := range matchPoints {
 			matches[p.y][p.x] = NEEDLE[i]
 		}
-		matchCount++
 	}
-	return matchCount
+	return 1
 }
 
 func main() {
@@ -98,8 +106,8 @@ func main() {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "matches: %d\n", matchCount)
 	for _, lineMatches := range matches {
 		fmt.Printf("%s\n", string(lineMatches))
 	}
+	fmt.Fprintf(os.Stderr, "matches: %d\n", matchCount)
 }

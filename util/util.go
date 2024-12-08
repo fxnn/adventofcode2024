@@ -8,6 +8,11 @@ import (
 
 type Void struct{}
 
+// Itoa converts integer to string
+func Itoa(i int) string {
+	return strconv.Itoa(i)
+}
+
 // Atoi converts string to integer, and exist immediately upon error
 func Atoi(s string) int {
 	if i, err := strconv.Atoi(s); err != nil {
@@ -17,6 +22,16 @@ func Atoi(s string) int {
 	} else {
 		return i
 	}
+}
+
+// AtoiList converts a list of strings into a list of integers,
+// whereas the result list has the same size as the given one.
+func AtoiList(l []string) []int {
+	var result = make([]int, len(l))
+	for i, s := range l {
+		result[i] = Atoi(s)
+	}
+	return result
 }
 
 // Abs calculates the absolute value of an integer

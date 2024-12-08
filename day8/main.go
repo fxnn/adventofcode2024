@@ -38,14 +38,20 @@ func discoverAntinodes(antennaPoints map[byte][]util.Point, mapHeight int, mapWi
 				if i == j {
 					continue
 				}
+				antinodes[point] = util.Void{}
+				antinodes[otherPoint] = util.Void{}
 				var delta = point.Subtract(otherPoint)
+
 				var antinode1 = point.Add(delta)
-				if antinode1.IsInBounds(mapHeight, mapWidth) {
+				for antinode1.IsInBounds(mapHeight, mapWidth) {
 					antinodes[antinode1] = util.Void{}
+					antinode1 = antinode1.Add(delta)
 				}
+
 				var antinode2 = otherPoint.Subtract(delta)
-				if antinode2.IsInBounds(mapHeight, mapWidth) {
+				for antinode2.IsInBounds(mapHeight, mapWidth) {
 					antinodes[antinode2] = util.Void{}
+					antinode2 = antinode2.Subtract(delta)
 				}
 			}
 		}

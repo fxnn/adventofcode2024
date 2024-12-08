@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+type Void struct{}
+
 // Atoi converts string to integer, and exist immediately upon error
 func Atoi(s string) int {
 	if i, err := strconv.Atoi(s); err != nil {

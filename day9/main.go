@@ -39,6 +39,7 @@ func printDiskBlocks(diskBlocks []int) {
 			fmt.Printf("%d", b)
 		}
 	}
+	fmt.Println()
 }
 
 func compact(in []int) []int {
@@ -60,7 +61,7 @@ func compact(in []int) []int {
 	return out
 }
 
-func checksum(diskBlocks []int) int {
+func calculateChecksum(diskBlocks []int) int {
 	var checksum = 0
 	for i, b := range diskBlocks {
 		if b != FREE {
@@ -70,21 +71,90 @@ func checksum(diskBlocks []int) int {
 	return checksum
 }
 
+func findFreeSpace(blocks []int, size int) int {
+	var targetBegin, foundSize int
+	targetBegin = -1
+	for i := range blocks {
+		if blocks[i] == FREE && targetBegin == -1 {
+			targetBegin = i
+		}
+		if blocks[i] != FREE && targetBegin != -1 {
+			foundSize = i - targetBegin
+			if foundSize >= size {
+				return targetBegin
+			}
+			targetBegin = -1
+		}
+	}
+	return -1
+}
+
+func set(blocks []int, begin, end, fileId int) {
+	for i := begin; i <= end; i++ {
+		blocks[i] = fileId
+	}
+}
+
+func defrag(in []int) []int {
+	var out = make([]int, len(in))
+	copy(out[:], in[:])
+
+	var fileId, sourceBegin, sourceEnd int
+	fileId = -1
+	for i := len(in) - 1; i >= 0; i-- {
+		if fileId > 0 && fileId != in[i] {
+			// case 1: we've exited the file
+			var size, targetBegin int
+
+			sourceBegin = i + 1
+			size = sourceEnd - sourceBegin + 1
+
+			targetBegin = findFreeSpace(out, size)
+			if targetBegin >= 0 && targetBegin < sourceBegin {
+				fmt.Printf("  move: %d -> %d (size %d)\n", sourceBegin, targetBegin, size)
+				set(out, sourceBegin, sourceEnd, FREE)
+				set(out, targetBegin, targetBegin+size-1, fileId)
+			} else {
+				fmt.Printf("  stay: %d (size %d)\n", sourceBegin, size)
+			}
+			fileId = -1
+		}
+		if fileId < 0 {
+			if in[i] == FREE {
+				// case 2: we're crossing void areas
+				continue
+			}
+			// case 3: we're entering the file
+			fileId = in[i]
+			sourceEnd = i
+		}
+	}
+	return out
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanLines)
 
+	var diskMap string
 	scanner.Scan()
-	var diskMap = scanner.Text()
+	diskMap = scanner.Text()
 
-	var diskBlocks = calculateDiskBlocks(diskMap)
+	var diskBlocks []int
+	diskBlocks = calculateDiskBlocks(diskMap)
 	printDiskBlocks(diskBlocks)
-	fmt.Println()
 
-	diskBlocks = compact(diskBlocks)
-	printDiskBlocks(diskBlocks)
-	fmt.Println()
+	var compactDiskBlocks []int
+	var compactChecksum int
+	compactDiskBlocks = compact(diskBlocks)
+	printDiskBlocks(compactDiskBlocks)
+	compactChecksum = calculateChecksum(compactDiskBlocks)
+	fmt.Printf("compact checksum: %d\n", compactChecksum)
 
-	var checksum = checksum(diskBlocks)
-	fmt.Printf("checksum: %d\n", checksum)
+	var defragDiskBlocks []int
+	var defragChecksum int
+	defragDiskBlocks = defrag(diskBlocks)
+	printDiskBlocks(defragDiskBlocks)
+	defragChecksum = calculateChecksum(defragDiskBlocks)
+	fmt.Printf("defrag checksum: %d\n", defragChecksum)
 }

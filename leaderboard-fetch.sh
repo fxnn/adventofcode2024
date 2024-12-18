@@ -22,6 +22,7 @@ curl \
   + "https://img.shields.io/badge/"
   + (.stars | tostring)
   + "-%E2%AD%90_stars-gold) "
+  + "<br /> "
   + "user **" 
   + .name 
   + "** (" 

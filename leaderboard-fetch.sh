@@ -16,11 +16,16 @@ curl \
   '.members 
   | values[] 
   | select(.name==$ENV.aoc_username) 
-  | "user **" 
+  | "![" 
+  + (.stars | tostring) 
+  + " stars]("
+  + "https://img.shields.io/badge/"+
+  + (.stars | tostring)
+  + "-%E2%AD%90_stars-gold) "
+  + user **" 
   + .name 
   + "** (" 
-  + (.stars | tostring) 
-  + " stars, last one at " 
+  + "last one at " 
   + (.last_star_ts | todateiso8601) 
   + ")"'
 

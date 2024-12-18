@@ -19,7 +19,7 @@ curl \
   | "![" 
   + (.stars | tostring) 
   + " stars]("
-  + "https://img.shields.io/badge/"+
+  + "https://img.shields.io/badge/"
   + (.stars | tostring)
   + "-%E2%AD%90_stars-gold) "
   + user **" 
